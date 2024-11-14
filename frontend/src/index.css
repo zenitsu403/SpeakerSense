@@ -1,0 +1,214 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  body {
+    @apply bg-gray-50 text-gray-900 antialiased;
+  }
+
+  /* Typography */
+  h1 {
+    @apply text-4xl font-bold md:text-5xl;
+  }
+
+  h2 {
+    @apply text-3xl font-bold md:text-4xl;
+  }
+
+  h3 {
+    @apply text-2xl font-bold md:text-3xl;
+  }
+
+  p {
+    @apply text-gray-600;
+  }
+
+  /* Focus States */
+  :focus-visible {
+    @apply outline-none ring-2 ring-primary-500 ring-offset-2;
+  }
+}
+
+@layer components {
+  /* Custom Animation Classes */
+  .animate-float {
+    animation: float 6s ease-in-out infinite;
+  }
+
+  .animate-waveform-bar {
+    animation: waveform 1.2s ease-in-out infinite;
+  }
+
+  /* Upload Zone */
+  .upload-zone {
+    @apply relative rounded-xl border-2 border-dashed border-gray-300 
+           p-8 transition-all duration-200 ease-in-out;
+  }
+
+  .upload-zone-active {
+    @apply border-primary-500 bg-primary-50;
+  }
+
+  .upload-zone-success {
+    @apply border-green-500 bg-green-50;
+  }
+
+  .upload-zone-error {
+    @apply border-red-500 bg-red-50;
+  }
+
+  /* Progress Ring */
+  .progress-ring {
+    @apply transition-all duration-200;
+  }
+
+  .progress-ring__circle {
+    @apply transition-all duration-200 ease-in-out;
+    transform-origin: 50% 50%;
+  }
+
+  /* Buttons */
+  .btn-upload {
+    @apply inline-flex items-center justify-center px-6 py-3 
+           text-sm font-medium text-white bg-primary-600 
+           rounded-lg transition-all duration-200 
+           hover:bg-primary-700 focus:outline-none focus:ring-2 
+           focus:ring-offset-2 focus:ring-primary-500;
+  }
+
+  .btn-retry {
+    @apply inline-flex items-center justify-center px-4 py-2 
+           text-sm font-medium text-primary-600 bg-primary-50 
+           rounded-lg transition-all duration-200 
+           hover:bg-primary-100 focus:outline-none focus:ring-2 
+           focus:ring-offset-2 focus:ring-primary-500;
+  }
+
+  /* File Info */
+  .file-info {
+    @apply mt-4 text-sm text-gray-500;
+  }
+
+  /* Status Messages */
+  .status-message {
+    @apply mt-2 text-sm font-medium;
+  }
+
+  .status-message--success {
+    @apply text-green-600;
+  }
+
+  .status-message--error {
+    @apply text-red-600;
+  }
+
+  /* Meeting Analytics */
+  .meeting-analytics {
+    @apply bg-gray-50 text-gray-900 antialiased px-4 py-12 md:px-8;
+  }
+
+  .meeting-analytics h1 {
+    @apply text-4xl font-bold md:text-5xl text-gradient;
+  }
+
+  .meeting-analytics h2 {
+    @apply text-3xl font-bold md:text-4xl;
+  }
+
+  .meeting-analytics h3 {
+    @apply text-2xl font-bold md:text-3xl;
+  }
+
+  .meeting-analytics p {
+    @apply text-gray-600;
+  }
+
+  .meeting-analytics .meeting-minutes,
+  .meeting-analytics .speaker-summaries,
+  .meeting-analytics .full-transcription {
+    @apply bg-white rounded-lg shadow-lg p-8 mb-8 scrollbar-custom;
+  }
+
+  .meeting-analytics .speaker-summary {
+    @apply border-b border-gray-200 last:border-b-0 py-4;
+  }
+
+  .meeting-analytics .transcription-item {
+    @apply border-b border-gray-200 last:border-b-0 py-4;
+  }
+}
+
+@layer utilities {
+  /* Custom Scrollbar */
+  .scrollbar-custom {
+    scrollbar-width: thin;
+    scrollbar-color: theme('colors.primary.200') theme('colors.gray.100');
+  }
+
+  .scrollbar-custom::-webkit-scrollbar {
+    @apply w-2;
+  }
+
+  .scrollbar-custom::-webkit-scrollbar-track {
+    @apply bg-gray-100 rounded-full;
+  }
+
+  .scrollbar-custom::-webkit-scrollbar-thumb {
+    @apply bg-primary-200 rounded-full;
+  }
+
+  .scrollbar-custom::-webkit-scrollbar-thumb:hover {
+    @apply bg-primary-300;
+  }
+
+  /* Gradient Text */
+  .text-gradient {
+    @apply bg-clip-text text-transparent bg-gradient-to-r from-primary-600 to-purple-600;
+  }
+}
+
+/* Custom Animations */
+@keyframes float {
+  0% {
+    transform: translateY(0px);
+  }
+  50% {
+    transform: translateY(-20px);
+  }
+  100% {
+    transform: translateY(0px);
+  }
+}
+
+@keyframes waveform {
+  0%, 100% {
+    transform: scaleY(0.5);
+  }
+  50% {
+    transform: scaleY(1);
+  }
+}
+
+/* Media Queries */
+@media (max-width: 640px) {
+  .upload-zone {
+    @apply p-4;
+  }
+
+  .meeting-analytics {
+    @apply px-4 py-8;
+  }
+
+  .meeting-analytics h1 {
+    @apply text-3xl;
+  }
+
+  .meeting-analytics h2 {
+    @apply text-2xl;
+  }
+
+  .meeting-analytics h3 {
+    @apply text-xl;
+  }
+}
