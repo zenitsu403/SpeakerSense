@@ -12,6 +12,10 @@ import json
 from transformers import pipeline as hf_pipeline
 from django.shortcuts import render
 from rest_framework.decorators import api_view
+from dotenv import load_dotenv
+load_dotenv()
+TOKEN = os.getenv('AUTH_TOKEN')
+
 
 # Convert MP3 to WAV
 def convert_mp3_to_wav(mp3_file, wav_file):
@@ -107,7 +111,7 @@ def upload_file(request):
 
         # Load the speaker diarization pipeline
         pipeline = Pipeline.from_pretrained("pyannote/speaker-diarization",
-                                            use_auth_token="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")
+                                            use_auth_token=TOKEN)
         
         # Perform speaker diarization
         diarization = pipeline(wav_file)
@@ -159,8 +163,6 @@ def upload_file(request):
             'speaker_summaries': speaker_summaries,
             'transcriptions': transcriptions
         }
-
-        print(response_data)
 
         # Clean up temporary files
         for segment_file, _ in segment_files:

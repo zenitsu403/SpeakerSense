@@ -1,61 +1,296 @@
+import React, { useState, useRef, useEffect } from 'react';
 import { useLocation } from 'react-router-dom';
+import { 
+  Clock, Users, MessageSquare, BarChart2, 
+  Download, FileText, FileJson, FileSpreadsheet, 
+  File, ChevronDown 
+} from "lucide-react";
+import jsPDF from 'jspdf';
+import 'jspdf-autotable';
 
 const MeetingAnalytics = () => {
   const { state } = useLocation();
   const { response_data } = state;
-  console.log(response_data)
+  const [showExportMenu, setShowExportMenu] = useState(false);
+  const dropdownRef = useRef(null);
+  
+  // Add click outside handler
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+        setShowExportMenu(false);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
+
+  // Your existing export functions remain the same
+  const exportToCSV = () => {
+    try {
+      let csvContent = 'Meeting Analytics Summary\n\n';
+      csvContent += `Duration (minutes),${response_data.total_duration}\n`;
+      csvContent += `Number of Participants,${response_data.num_participants}\n`;
+      csvContent += `Total Segments,${response_data.total_segments}\n`;
+      csvContent += `Engagement Score,${response_data.engagement_score}\n\n`;
+      csvContent += 'Meeting Summary\n';
+      csvContent += `${response_data.meeting_summary.replace(/,/g, ';')}\n\n`;
+      csvContent += 'Speaker Summaries\n';
+      Object.entries(response_data.speaker_summaries).forEach(([speaker, summary]) => {
+        csvContent += `${speaker},"${summary.replace(/"/g, '""')}"\n`;
+      });
+      csvContent += '\n';
+      csvContent += 'Full Transcription\n';
+      csvContent += 'Speaker,Transcription\n';
+      response_data.transcriptions.forEach(item => {
+        csvContent += `${item.Speaker},"${item.Transcription.replace(/"/g, '""')}"\n`;
+      });
+      downloadFile(csvContent, 'meeting-analytics.csv', 'text/csv');
+      setShowExportMenu(false);
+    } catch (error) {
+      console.error('Error exporting to CSV:', error);
+      alert('Failed to export CSV. Please try again.');
+    }
+  };
+
+  const exportToJSON = () => {
+    try {
+      const jsonContent = JSON.stringify(response_data, null, 2);
+      downloadFile(jsonContent, 'meeting-analytics.json', 'application/json');
+      setShowExportMenu(false);
+    } catch (error) {
+      console.error('Error exporting to JSON:', error);
+      alert('Failed to export JSON. Please try again.');
+    }
+  };
+
+  const exportToText = () => {
+    try {
+      let content = `Meeting Analytics Report\n\n`;
+      content += `Duration: ${response_data.total_duration} minutes\n`;
+      content += `Participants: ${response_data.num_participants}\n`;
+      content += `Segments: ${response_data.total_segments}\n`;
+      content += `Engagement Score: ${response_data.engagement_score}\n\n`;
+      content += `Meeting Summary:\n${response_data.meeting_summary}\n\n`;
+      content += `Speaker Summaries:\n`;
+      Object.entries(response_data.speaker_summaries).forEach(([speaker, summary]) => {
+        content += `${speaker}:\n${summary}\n\n`;
+      });
+      content += `\nTranscriptions:\n`;
+      response_data.transcriptions.forEach(item => {
+        content += `${item.Speaker}: ${item.Transcription}\n`;
+      });
+      downloadFile(content, 'meeting-analytics.txt', 'text/plain');
+      setShowExportMenu(false);
+    } catch (error) {
+      console.error('Error exporting to Text:', error);
+      alert('Failed to export Text. Please try again.');
+    }
+  };
+
+  const exportToPDF = () => {
+    try {
+      const doc = new jsPDF();
+      let yOffset = 20;
+      
+      doc.setFontSize(20);
+      doc.text('Meeting Analytics Report', 20, yOffset);
+      yOffset += 15;
+      
+      doc.setFontSize(12);
+      doc.text(`Duration: ${response_data.total_duration} minutes`, 20, yOffset);
+      yOffset += 7;
+      doc.text(`Participants: ${response_data.num_participants}`, 20, yOffset);
+      yOffset += 7;
+      doc.text(`Segments: ${response_data.total_segments}`, 20, yOffset);
+      yOffset += 7;
+      doc.text(`Engagement Score: ${response_data.engagement_score}`, 20, yOffset);
+      yOffset += 15;
+      
+      doc.setFontSize(14);
+      doc.text('Meeting Summary', 20, yOffset);
+      yOffset += 7;
+      doc.setFontSize(12);
+      const summaryLines = doc.splitTextToSize(response_data.meeting_summary, 170);
+      doc.text(summaryLines, 20, yOffset);
+      yOffset += (summaryLines.length * 7) + 10;
+      
+      doc.setFontSize(14);
+      doc.text('Speaker Summaries', 20, yOffset);
+      yOffset += 10;
+      
+      const speakerData = Object.entries(response_data.speaker_summaries).map(([speaker, summary]) => [speaker, summary]);
+      doc.autoTable({
+        startY: yOffset,
+        head: [['Speaker', 'Summary']],
+        body: speakerData,
+        margin: { left: 20 },
+        maxWidth: 170
+      });
+      
+      yOffset = doc.lastAutoTable.finalY + 15;
+      
+      if (yOffset > 250) {
+        doc.addPage();
+        yOffset = 20;
+      }
+      
+      doc.setFontSize(14);
+      doc.text('Full Transcription', 20, yOffset);
+      yOffset += 10;
+      
+      const transcriptionData = response_data.transcriptions.map(item => [item.Speaker, item.Transcription]);
+      doc.autoTable({
+        startY: yOffset,
+        head: [['Speaker', 'Transcription']],
+        body: transcriptionData,
+        margin: { left: 20 },
+        maxWidth: 170
+      });
+      
+      doc.save('meeting-analytics.pdf');
+      setShowExportMenu(false);
+    } catch (error) {
+      console.error('Error exporting to PDF:', error);
+      alert('Failed to export PDF. Please try again.');
+    }
+  };
+
+  const downloadFile = (content, fileName, contentType) => {
+    const blob = new Blob([content], { type: contentType });
+    const url = window.URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = fileName;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    window.URL.revokeObjectURL(url);
+  };
+
+  const exportOptions = [
+    { label: 'CSV', icon: FileSpreadsheet, onClick: exportToCSV, color: 'text-green-400' },
+    { label: 'JSON', icon: FileJson, onClick: exportToJSON, color: 'text-yellow-400' },
+    { label: 'Text', icon: FileText, onClick: exportToText, color: 'text-blue-400' },
+    { label: 'PDF', icon: File, onClick: exportToPDF, color: 'text-red-400' },
+  ];
+
   return (
-    <div className="meeting-analytics">
-      <h1>Meeting Analytics</h1>
+    <div className="pt-20 min-h-screen bg-gray-900 text-gray-100">
+      <div className="px-6 md:px-8 pb-8">
+        <div className="flex justify-between items-center mb-8">
+          <h1 className="text-4xl font-bold bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent">
+            Meeting Analytics
+          </h1>
+          
+          {/* Modern Export Dropdown */}
+          <div className="relative" ref={dropdownRef}>
+            <button
+              onClick={() => setShowExportMenu(!showExportMenu)}
+              className="flex items-center gap-2 px-4 py-2.5 bg-gray-800 hover:bg-gray-700 
+                       border border-gray-700 rounded-lg transition-all duration-200 
+                       focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50"
+            >
+              <Download className="w-4 h-4" />
+              <span>Export</span>
+              <ChevronDown 
+                className={`w-4 h-4 transition-transform duration-200 ${
+                  showExportMenu ? 'rotate-180' : ''
+                }`}
+              />
+            </button>
 
-      <div className="analytics-overview bg-white rounded-lg shadow-lg p-8 mb-8 scrollbar-custom">
-        <h2>Analytics Overview</h2>
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-          <div className="card">
-            <h3>Total Duration</h3>
-            <div className="value">{response_data.total_duration}</div>
-            <div className="unit">minutes</div>
-          </div>
-          <div className="card">
-            <h3>Participants</h3>
-            <div className="value">{response_data.num_participants}</div>
-            <div className="unit">speakers detected</div>
-          </div>
-          <div className="card">
-            <h3>Total Segments</h3>
-            <div className="value">{response_data.total_segments}</div>
-            <div className="unit">conversation turns</div>
-          </div>
-          <div className="card">
-            <h3>Engagement Score</h3>
-            <div className="value">{response_data.engagement_score.toFixed(1)}</div>
-            <div className="unit">out of 10</div>
+            {showExportMenu && (
+              <div className="absolute right-0 mt-2 w-56 rounded-lg bg-gray-800 border border-gray-700 
+                           shadow-lg ring-1 ring-black ring-opacity-5 transform transition-all duration-200 
+                           origin-top-right divide-y divide-gray-700">
+                {exportOptions.map((option, index) => (
+                  <button
+                    key={option.label}
+                    onClick={() => {
+                      option.onClick();
+                      setShowExportMenu(false);
+                    }}
+                    className={`flex items-center w-full px-4 py-3 text-sm text-gray-200 
+                              hover:bg-gray-700/50 transition-colors duration-150
+                              ${index === 0 ? 'rounded-t-lg' : ''} 
+                              ${index === exportOptions.length - 1 ? 'rounded-b-lg' : ''}`}
+                  >
+                    <option.icon className={`w-4 h-4 mr-3 ${option.color}`} />
+                    <span className="flex-1 text-left">Export as {option.label}</span>
+                  </button>
+                ))}
+              </div>
+            )}
           </div>
         </div>
-      </div>
 
-      {response_data.meeting_summary && (
-        <div className="meeting-summary bg-white rounded-lg shadow-lg p-8 mb-8 scrollbar-custom">
-          <h2>Meeting Summary</h2>
-          <p>{response_data.meeting_summary}</p>
-        </div>
-      )}
-
-      {Object.keys(response_data.speaker_summaries).map((speaker) => (
-        <div key={speaker} className="speaker-summaries bg-white rounded-lg shadow-lg p-8 mb-8 scrollbar-custom">
-          <h2>{speaker}</h2>
-          <p className="speaker-summary">{response_data.speaker_summaries[speaker]}</p>
-        </div>
-      ))}
-
-      <div className="full-transcription bg-white rounded-lg shadow-lg p-8 mb-8 scrollbar-custom">
-        <h2>Full Transcription</h2>
-        {response_data.transcriptions.map((item, index) => (
-          <div key={index} className="transcription-item">
-            <h3>Speaker: {item.Speaker}</h3>
-            <p>{item.Transcription}</p>
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+          <div className="bg-gray-800 rounded-xl p-6 border border-gray-700 hover:border-blue-500 transition-all">
+            <div className="flex items-center space-x-3 mb-4">
+              <Clock className="w-6 h-6 text-blue-400" />
+              <h3 className="text-lg font-semibold">Duration</h3>
+            </div>
+            <div className="text-3xl font-bold text-blue-400">{response_data.total_duration}</div>
+            <div className="text-sm text-gray-400">minutes</div>
           </div>
-        ))}
+
+          <div className="bg-gray-800 rounded-xl p-6 border border-gray-700 hover:border-purple-500 transition-all">
+            <div className="flex items-center space-x-3 mb-4">
+              <Users className="w-6 h-6 text-purple-400" />
+              <h3 className="text-lg font-semibold">Participants</h3>
+            </div>
+            <div className="text-3xl font-bold text-purple-400">{response_data.num_participants}</div>
+            <div className="text-sm text-gray-400">speakers detected</div>
+          </div>
+
+          <div className="bg-gray-800 rounded-xl p-6 border border-gray-700 hover:border-pink-500 transition-all">
+            <div className="flex items-center space-x-3 mb-4">
+              <MessageSquare className="w-6 h-6 text-pink-400" />
+              <h3 className="text-lg font-semibold">Segments</h3>
+            </div>
+            <div className="text-3xl font-bold text-pink-400">{response_data.total_segments}</div>
+            <div className="text-sm text-gray-400">conversation turns</div>
+          </div>
+
+          <div className="bg-gray-800 rounded-xl p-6 border border-gray-700 hover:border-green-500 transition-all">
+            <div className="flex items-center space-x-3 mb-4">
+              <BarChart2 className="w-6 h-6 text-green-400" />
+              <h3 className="text-lg font-semibold">Engagement</h3>
+            </div>
+            <div className="text-3xl font-bold text-green-400">{response_data.engagement_score.toFixed(1)}</div>
+            <div className="text-sm text-gray-400">out of 10</div>
+          </div>
+        </div>
+
+        {response_data.meeting_summary && (
+          <div className="bg-gray-800 rounded-xl p-6 mb-8 border border-gray-700">
+            <h2 className="text-2xl font-bold mb-4 text-gray-100">Meeting Summary</h2>
+            <p className="text-gray-300 leading-relaxed">{response_data.meeting_summary}</p>
+          </div>
+        )}
+
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+          {Object.entries(response_data.speaker_summaries).map(([speaker, summary]) => (
+            <div key={speaker} className="bg-gray-800 rounded-xl p-6 border border-gray-700">
+              <h2 className="text-xl font-bold mb-3 text-blue-400">{speaker}</h2>
+              <p className="text-gray-300 leading-relaxed">{summary}</p>
+            </div>
+          ))}
+        </div>
+
+        <div className="bg-gray-800 rounded-xl p-6 border border-gray-700">
+          <h2 className="text-2xl font-bold mb-6 text-gray-100">Full Transcription</h2>
+          <div className="space-y-4">
+            {response_data.transcriptions.map((item, index) => (
+              <div key={index} className="border-b border-gray-700 last:border-0 pb-4 last:pb-0">
+                <h3 className="text-lg font-semibold text-blue-400 mb-2">{item.Speaker}</h3>
+                <p className="text-gray-300">{item.Transcription}</p>
+              </div>
+            ))}
+          </div>
+        </div>
       </div>
     </div>
   );

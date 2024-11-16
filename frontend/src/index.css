@@ -4,146 +4,68 @@
 
 @layer base {
   body {
-    @apply bg-gray-50 text-gray-900 antialiased;
+    @apply bg-gray-900 text-gray-100 antialiased min-h-screen;
   }
 
   /* Typography */
   h1 {
-    @apply text-4xl font-bold md:text-5xl;
+    @apply text-4xl font-bold md:text-5xl tracking-tight;
   }
 
   h2 {
-    @apply text-3xl font-bold md:text-4xl;
+    @apply text-2xl font-bold md:text-3xl tracking-tight;
   }
 
   h3 {
-    @apply text-2xl font-bold md:text-3xl;
+    @apply text-xl font-bold md:text-2xl;
   }
 
   p {
-    @apply text-gray-600;
+    @apply text-gray-300 leading-relaxed;
   }
 
   /* Focus States */
   :focus-visible {
-    @apply outline-none ring-2 ring-primary-500 ring-offset-2;
+    @apply outline-none ring-2 ring-blue-500 ring-offset-2 ring-offset-gray-900;
   }
 }
 
 @layer components {
-  /* Custom Animation Classes */
-  .animate-float {
-    animation: float 6s ease-in-out infinite;
-  }
-
-  .animate-waveform-bar {
-    animation: waveform 1.2s ease-in-out infinite;
-  }
-
-  /* Upload Zone */
-  .upload-zone {
-    @apply relative rounded-xl border-2 border-dashed border-gray-300 
-           p-8 transition-all duration-200 ease-in-out;
-  }
-
-  .upload-zone-active {
-    @apply border-primary-500 bg-primary-50;
-  }
-
-  .upload-zone-success {
-    @apply border-green-500 bg-green-50;
-  }
-
-  .upload-zone-error {
-    @apply border-red-500 bg-red-50;
-  }
-
-  /* Progress Ring */
-  .progress-ring {
-    @apply transition-all duration-200;
-  }
-
-  .progress-ring__circle {
-    @apply transition-all duration-200 ease-in-out;
-    transform-origin: 50% 50%;
-  }
-
-  /* Buttons */
-  .btn-upload {
-    @apply inline-flex items-center justify-center px-6 py-3 
-           text-sm font-medium text-white bg-primary-600 
-           rounded-lg transition-all duration-200 
-           hover:bg-primary-700 focus:outline-none focus:ring-2 
-           focus:ring-offset-2 focus:ring-primary-500;
-  }
-
-  .btn-retry {
-    @apply inline-flex items-center justify-center px-4 py-2 
-           text-sm font-medium text-primary-600 bg-primary-50 
-           rounded-lg transition-all duration-200 
-           hover:bg-primary-100 focus:outline-none focus:ring-2 
-           focus:ring-offset-2 focus:ring-primary-500;
-  }
-
-  /* File Info */
-  .file-info {
-    @apply mt-4 text-sm text-gray-500;
-  }
-
-  /* Status Messages */
-  .status-message {
-    @apply mt-2 text-sm font-medium;
-  }
-
-  .status-message--success {
-    @apply text-green-600;
-  }
-
-  .status-message--error {
-    @apply text-red-600;
-  }
-
-  /* Meeting Analytics */
+  /* Meeting Analytics Specific Styles */
   .meeting-analytics {
-    @apply bg-gray-50 text-gray-900 antialiased px-4 py-12 md:px-8;
+    @apply min-h-screen bg-gray-900 text-gray-100 p-6 md:p-8;
   }
 
-  .meeting-analytics h1 {
-    @apply text-4xl font-bold md:text-5xl text-gradient;
+  .analytics-card {
+    @apply bg-gray-800 rounded-xl p-6 border border-gray-700 
+           transition-all duration-300 ease-in-out hover:border-blue-500
+           hover:shadow-lg hover:shadow-blue-500/10;
   }
 
-  .meeting-analytics h2 {
-    @apply text-3xl font-bold md:text-4xl;
+  .analytics-value {
+    @apply text-3xl font-bold bg-gradient-to-r from-blue-400 to-purple-400 
+           bg-clip-text text-transparent animate-gradient;
   }
 
-  .meeting-analytics h3 {
-    @apply text-2xl font-bold md:text-3xl;
+  .analytics-label {
+    @apply text-sm text-gray-400 mt-1;
   }
 
-  .meeting-analytics p {
-    @apply text-gray-600;
+  .speaker-card {
+    @apply bg-gray-800 rounded-xl p-6 border border-gray-700
+           transition-all duration-300 hover:border-purple-500
+           hover:shadow-lg hover:shadow-purple-500/10;
   }
 
-  .meeting-analytics .meeting-minutes,
-  .meeting-analytics .speaker-summaries,
-  .meeting-analytics .full-transcription {
-    @apply bg-white rounded-lg shadow-lg p-8 mb-8 scrollbar-custom;
+  .transcription-item {
+    @apply border-b border-gray-700 last:border-b-0 py-4 
+           transition-colors duration-200 hover:bg-gray-800/50;
   }
 
-  .meeting-analytics .speaker-summary {
-    @apply border-b border-gray-200 last:border-b-0 py-4;
-  }
-
-  .meeting-analytics .transcription-item {
-    @apply border-b border-gray-200 last:border-b-0 py-4;
-  }
-}
-
-@layer utilities {
   /* Custom Scrollbar */
   .scrollbar-custom {
     scrollbar-width: thin;
-    scrollbar-color: theme('colors.primary.200') theme('colors.gray.100');
+    scrollbar-color: theme('colors.gray.600') theme('colors.gray.800');
   }
 
   .scrollbar-custom::-webkit-scrollbar {
@@ -151,64 +73,139 @@
   }
 
   .scrollbar-custom::-webkit-scrollbar-track {
-    @apply bg-gray-100 rounded-full;
+    @apply bg-gray-800 rounded-full;
   }
 
   .scrollbar-custom::-webkit-scrollbar-thumb {
-    @apply bg-primary-200 rounded-full;
+    @apply bg-gray-600 rounded-full;
   }
 
   .scrollbar-custom::-webkit-scrollbar-thumb:hover {
-    @apply bg-primary-300;
+    @apply bg-gray-500;
   }
 
   /* Gradient Text */
   .text-gradient {
-    @apply bg-clip-text text-transparent bg-gradient-to-r from-primary-600 to-purple-600;
+    @apply bg-clip-text text-transparent bg-gradient-to-r 
+           from-blue-400 via-purple-400 to-pink-400;
+  }
+
+  /* Card Styles */
+  .stat-card {
+    @apply relative overflow-hidden bg-gray-800 rounded-xl p-6
+           border border-gray-700 transition-all duration-300
+           hover:border-opacity-100 hover:shadow-lg hover:shadow-blue-500/10;
+  }
+
+  .stat-card::before {
+    content: '';
+    @apply absolute inset-0 bg-gradient-to-r from-blue-500/10 
+           to-purple-500/10 opacity-0 transition-opacity duration-300;
+  }
+
+  .stat-card:hover::before {
+    @apply opacity-100;
+  }
+
+  /* Icon Styles */
+  .card-icon {
+    @apply w-8 h-8 mb-4 text-blue-400 transition-transform 
+           duration-300 transform group-hover:scale-110;
+  }
+}
+
+@layer utilities {
+  /* Animation Utilities */
+  .animate-gradient {
+    background-size: 200% 200%;
+    animation: gradient 8s ease infinite;
+  }
+
+  .hover-scale {
+    @apply transition-transform duration-300 hover:scale-105;
+  }
+
+  .hover-lift {
+    @apply transition-all duration-300 hover:-translate-y-1;
   }
 }
 
 /* Custom Animations */
-@keyframes float {
+@keyframes gradient {
   0% {
-    transform: translateY(0px);
+    background-position: 0% 50%;
   }
   50% {
-    transform: translateY(-20px);
+    background-position: 100% 50%;
   }
   100% {
-    transform: translateY(0px);
+    background-position: 0% 50%;
   }
 }
 
-@keyframes waveform {
-  0%, 100% {
-    transform: scaleY(0.5);
-  }
-  50% {
-    transform: scaleY(1);
-  }
+/* Glass Effect */
+.glass-effect {
+  @apply bg-gray-800/80 backdrop-blur-sm;
 }
 
 /* Media Queries */
 @media (max-width: 640px) {
-  .upload-zone {
+  .meeting-analytics {
+    @apply px-4 py-6;
+  }
+
+  .stat-card {
     @apply p-4;
   }
 
-  .meeting-analytics {
-    @apply px-4 py-8;
-  }
-
-  .meeting-analytics h1 {
+  h1 {
     @apply text-3xl;
   }
 
-  .meeting-analytics h2 {
+  h2 {
     @apply text-2xl;
   }
 
-  .meeting-analytics h3 {
+  h3 {
     @apply text-xl;
   }
+}
+
+/* Dark Mode Optimizations */
+@media (prefers-color-scheme: dark) {
+  .stat-card {
+    @apply bg-gray-800/90;
+  }
+
+  .glass-effect {
+    @apply bg-gray-800/90;
+  }
+
+  .scrollbar-custom::-webkit-scrollbar-track {
+    @apply bg-gray-800/50;
+  }
+}
+
+/* Hover Card Effects */
+.hover-card-effect {
+  @apply relative transition-all duration-300;
+}
+
+.hover-card-effect::after {
+  content: '';
+  @apply absolute inset-0 rounded-xl border border-transparent
+         opacity-0 transition-all duration-300;
+  background: linear-gradient(
+    to right,
+    theme('colors.blue.400'),
+    theme('colors.purple.400')
+  );
+  mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  mask-composite: exclude;
+  -webkit-mask-composite: source-out;
+  padding: 1px;
+}
+
+.hover-card-effect:hover::after {
+  @apply opacity-100;
 }
