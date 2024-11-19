@@ -3,6 +3,7 @@ from django.http import HttpResponse
 from django.core.files.storage import FileSystemStorage
 from pydub import AudioSegment
 from pyannote.audio import Pipeline
+import requests
 import speech_recognition as sr
 import pandas as pd
 import os
@@ -15,7 +16,7 @@ from rest_framework.decorators import api_view
 from dotenv import load_dotenv
 load_dotenv()
 TOKEN = os.getenv('AUTH_TOKEN')
-
+BERT_TOKEN = os.getenv('BERT_TOKEN')
 
 # Convert MP3 to WAV
 def convert_mp3_to_wav(mp3_file, wav_file):
@@ -49,13 +50,12 @@ def transcribe_segments(segment_files):
     for segment_file, speaker in segment_files:
         with sr.AudioFile(segment_file) as source:
             audio_data = recognizer.record(source)
+        text=""
         try:
             text = recognizer.recognize_google(audio_data)
-        except sr.UnknownValueError:
-            text = "[Unintelligible]"
-        except sr.RequestError as e:
-            text = f"[Error: {e}]"
-        transcriptions.append({'Speaker': speaker, 'Transcription': text})
+            transcriptions.append({'Speaker': speaker, 'Transcription': text})
+        except:
+            continue
     return transcriptions
 
 def calculate_engagement_score(transcriptions, segments):
@@ -118,7 +118,6 @@ def upload_file(request):
         rttm_file = wav_file.replace('.wav', '.rttm')
         with open(rttm_file, "w") as rttm:
             diarization.write_rttm(rttm)
-
         # Parse the RTTM file and extract segments
         segments = parse_rttm(rttm_file)
         segment_files = extract_audio_segments(wav_file, segments)
@@ -136,15 +135,31 @@ def upload_file(request):
             speaker_transcriptions[speaker].append(transcription)
 
         # Summarize the entire meeting transcript
-        summarizer = hf_pipeline("summarization", model="facebook/bart-large-cnn")
+        
         full_transcript = ' '.join([item['Transcription'] for item in transcriptions])
-        meeting_summary = summarizer(full_transcript, max_length=150, min_length=60, do_sample=False)[0]['summary_text']
+        # summarizer = hf_pipeline("summarization", model="facebook/bart-large-cnn")
+        # meeting_summary = summarizer(full_transcript, max_length=150, min_length=60, do_sample=False)[0]['summary_text']
+        
+        API_URL = "https://api-inference.huggingface.co/models/facebook/bart-large-cnn"
+        headers = {"Authorization": BERT_TOKEN}
+
+        def query(payload):
+            response = requests.post(API_URL, headers=headers, json=payload)
+            return response.json()
+            
+        output = query({
+            "inputs": full_transcript,
+        })
+        meeting_summary=output[0]["summary_text"]
 
         # Summarize individual speaker contributions
         speaker_summaries = {}
         for speaker, transcripts in speaker_transcriptions.items():
             speaker_text = ' '.join(transcripts)
-            summary = summarizer(speaker_text, max_length=100, min_length=30, do_sample=False)[0]['summary_text']
+            output = query({
+            "inputs": speaker_text,
+            })
+            summary=output[0]["summary_text"]
             speaker_summaries[speaker] = summary
 
         # Calculate meeting analytics

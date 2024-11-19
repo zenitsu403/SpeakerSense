@@ -71,8 +71,8 @@ const AudioUploader = () => {
       setError("Please upload a valid MP3 file");
       return false;
     }
-    if (file.size > 20 * 1024 * 1024) {
-      setError("File size should be less than 20MB");
+    if (file.size > 30 * 1024 * 1024) {
+      setError("File size should be less than 30MB");
       return false;
     }
     return true;
@@ -158,7 +158,7 @@ const AudioUploader = () => {
                   Click to upload
                 </button>
                 <span className="text-gray-400"> or drag and drop</span>
-                <p className="text-sm text-gray-500 mt-2">MP3 files up to 20MB</p>
+                <p className="text-sm text-gray-500 mt-2">MP3 files up to 30MB</p>
               </div>
               <input
                 id="file-upload"
