@@ -112,6 +112,140 @@
     @apply w-8 h-8 mb-4 text-blue-400 transition-transform 
            duration-300 transform group-hover:scale-110;
   }
+
+  /* Authentication Styles */
+  .auth-container {
+    @apply min-h-screen flex items-center justify-center p-4 bg-gray-900;
+  }
+
+  .auth-card {
+    @apply w-full max-w-md bg-gray-800/90 backdrop-blur-sm
+           rounded-xl border border-gray-700 shadow-xl
+           transition-all duration-300
+           hover:shadow-blue-500/10;
+  }
+
+  .auth-header {
+    @apply flex flex-col space-y-1.5 p-6;
+  }
+
+  .auth-description {
+    @apply text-sm text-gray-400;
+  }
+
+  .auth-content {
+    @apply p-6 pt-0;
+  }
+
+  .auth-footer {
+    @apply flex justify-center p-6 pt-0;
+  }
+
+  .auth-form {
+    @apply space-y-4;
+  }
+
+  .input-group {
+    @apply relative flex items-center;
+  }
+
+  .input-icon {
+    @apply absolute left-3 text-gray-400;
+  }
+
+  .auth-input {
+    @apply w-full bg-gray-700 border border-gray-600 
+           rounded-lg px-4 py-2 pl-10
+           text-gray-100 placeholder-gray-400
+           focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500
+           transition-colors duration-200;
+  }
+
+  .auth-button {
+    @apply flex items-center justify-center w-full px-4 py-2
+           bg-gradient-to-r from-blue-500 to-purple-500
+           hover:from-blue-600 hover:to-purple-600
+           text-white font-medium rounded-lg
+           transition-all duration-300
+           hover:shadow-lg hover:shadow-blue-500/25;
+  }
+
+  /* Gradient Text */
+  .text-gradient {
+    @apply text-3xl font-bold bg-clip-text text-transparent 
+           bg-gradient-to-r from-blue-400 via-purple-400 to-pink-400;
+  }
+
+  /* Error States */
+  .error-message {
+    @apply flex items-center gap-2 p-3 mb-4 text-red-600 bg-red-50/10 
+           rounded-md border border-red-600/20;
+  }
+
+  .input-error {
+    @apply text-sm text-red-500 mt-1 ml-1;
+  }
+
+  /* Disabled States */
+  .auth-button:disabled {
+    @apply opacity-70 cursor-not-allowed from-gray-500 to-gray-600 
+           hover:shadow-none hover:from-gray-500 hover:to-gray-600;
+  }
+
+  /* Password Recovery Link */
+  .password-recovery-link {
+    @apply text-sm text-blue-400 hover:text-blue-300 transition-colors 
+           duration-200 block text-right mb-4;
+  }
+
+  /* Loading States */
+  .auth-button-loading {
+    @apply flex items-center justify-center gap-2;
+  }
+
+  /* Form Field Focus States */
+  .auth-input:focus {
+    @apply border-blue-500 ring-1 ring-blue-500 bg-gray-700/50;
+  }
+
+  /* Error Input States */
+  .auth-input.error {
+    @apply border-red-500 focus:border-red-500 focus:ring-red-500;
+  }
+
+  /* Auth Navigation Links */
+  .auth-nav-link {
+    @apply text-blue-400 hover:text-blue-300 cursor-pointer 
+           transition-colors duration-200 
+           hover:underline underline-offset-2;
+  }
+  
+  /* Icon Button Styles */
+  .icon-button {
+    @apply inline-flex items-center justify-center transition-transform 
+           duration-200 hover:scale-110;
+  }
+
+  /* Form Groups */
+  .form-group {
+    @apply space-y-1;
+  }
+
+  /* Label Styles */
+  .input-label {
+    @apply block text-sm font-medium text-gray-300 mb-1;
+  }
+
+  /* Helper Text */
+  .helper-text {
+    @apply text-xs text-gray-400 mt-1;
+  }
+
+  /* Loading Spinner */
+  .loading-spinner {
+    @apply animate-spin w-4 h-4 border-2 border-gray-300 
+           border-t-transparent rounded-full;
+  }
 }
 
 @layer utilities {
@@ -143,6 +277,22 @@
   }
 }
 
+/* Custom Animations */
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.auth-card {
+  animation: fadeInUp 0.5s ease-out;
+}
+
 /* Glass Effect */
 .glass-effect {
   @apply bg-gray-800/80 backdrop-blur-sm;
@@ -169,6 +319,24 @@
   h3 {
     @apply text-xl;
   }
+  .auth-card {
+    @apply mx-4;
+  }
+
+  .text-gradient {
+    @apply text-2xl;
+  }
+  .auth-card {
+    @apply px-4;
+  }
+  
+  .auth-button {
+    @apply py-2.5;
+  }
+  
+  .auth-input {
+    @apply text-base py-2;
+  }
 }
 
 /* Dark Mode Optimizations */
@@ -183,6 +351,20 @@
 
   .scrollbar-custom::-webkit-scrollbar-track {
     @apply bg-gray-800/50;
+  }
+  .auth-card {
+    @apply bg-gray-800/90;
+  }
+
+  .auth-input {
+    @apply bg-gray-700 border-gray-600;
+  }
+  .error-message {
+    @apply bg-red-950/20 text-red-400;
+  }
+  
+  .auth-input.error {
+    @apply border-red-500/70 bg-red-950/10;
   }
 }
 

@@ -1,5 +1,3 @@
-from django.shortcuts import render
-from django.http import HttpResponse
 from django.core.files.storage import FileSystemStorage
 from pydub import AudioSegment
 from pyannote.audio import Pipeline
@@ -9,11 +7,16 @@ import pandas as pd
 import os
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
-import json
-from transformers import pipeline as hf_pipeline
-from django.shortcuts import render
-from rest_framework.decorators import api_view
 from dotenv import load_dotenv
+from rest_framework import status
+from rest_framework.decorators import api_view, permission_classes
+from rest_framework.permissions import IsAuthenticated, AllowAny
+from rest_framework.response import Response
+from rest_framework.authtoken.models import Token
+from django.contrib.auth import authenticate
+from rest_framework import serializers
+from .models import User
+
 load_dotenv()
 TOKEN = os.getenv('AUTH_TOKEN')
 BERT_TOKEN = os.getenv('BERT_TOKEN')
@@ -163,7 +166,8 @@ def upload_file(request):
             speaker_summaries[speaker] = summary
 
         # Calculate meeting analytics
-        total_duration = sum(segments['Turn Duration'])
+        audio = AudioSegment.from_file(file_path)
+        total_duration = len(audio) / (1000*60)
         num_participants = len(speaker_transcriptions)
         total_segments = len(transcriptions)
         engagement_score = calculate_engagement_score(transcriptions, segments)
@@ -185,3 +189,70 @@ def upload_file(request):
         os.remove(wav_file)
         
         return JsonResponse(response_data)
+
+class UserRegistrationSerializer(serializers.ModelSerializer):
+    password = serializers.CharField(write_only=True)
+    
+    class Meta:
+        model = User
+        fields = ['id', 'username', 'email', 'password']
+    
+    def create(self, validated_data):
+        user = User.objects.create_user(
+            username=validated_data['username'],
+            email=validated_data['email'],
+            password=validated_data['password']
+        )
+        return user
+
+@api_view(['POST'])
+@permission_classes([AllowAny])
+def register(request):
+    serializer = UserRegistrationSerializer(data=request.data)
+    if serializer.is_valid():
+        user = serializer.save()
+        token, _ = Token.objects.get_or_create(user=user)
+        return Response({
+            'user': serializer.data,
+            'token': token.key
+        }, status=status.HTTP_201_CREATED)
+    return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+@api_view(['POST'])
+@permission_classes([AllowAny])
+def login(request):
+    username = request.data.get('username')
+    password = request.data.get('password')
+    
+    user = authenticate(username=username, password=password)
+    
+    if user:
+        token, _ = Token.objects.get_or_create(user=user)
+        return Response({
+            'token': token.key,
+            'user_id': user.id,
+            'username': user.username
+        })
+    
+    return Response({
+        'error': 'Invalid credentials'
+    }, status=status.HTTP_401_UNAUTHORIZED)
+
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def logout(request):
+    try:
+        # Delete the token to logout
+        request.user.auth_token.delete()
+        return Response(status=status.HTTP_200_OK)
+    except Exception:
+        return Response(status=status.HTTP_400_BAD_REQUEST)
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def get_user_profile(request):
+    return Response({
+        'id': request.user.id,
+        'email': request.user.email,
+        'username': request.user.username
+    })

@@ -64,7 +64,7 @@ const WaveformAnimation = () => {
   );
 };
 
-const Home = () => {
+const Home = ({isLoggedIn}) => {
   const [isHovered, setIsHovered] = useState(false);
   const navigate = useNavigate();
   
@@ -86,14 +86,11 @@ const Home = () => {
                 className="px-8 py-4 rounded-lg bg-blue-600 hover:bg-blue-500 transition-all duration-300 flex items-center space-x-2 group"
                 onMouseEnter={() => setIsHovered(true)}
                 onMouseLeave={() => setIsHovered(false)}
-                onClick={() => navigate('./upload')}
+                onClick={() => isLoggedIn?navigate('/upload'):navigate('/login')}
               >
                 <FileText className="h-5 w-5" />
                 <span>Upload Audio File</span>
                 <ChevronRight className={`h-5 w-5 transition-transform duration-300 ${isHovered ? 'translate-x-1' : ''}`} />
-              </button>
-              <button className="px-8 py-4 rounded-lg border border-gray-700 hover:bg-gray-800/50 transition-all duration-300">
-                View Demo Analysis
               </button>
             </div>
 
@@ -262,31 +259,7 @@ const Home = () => {
                 </div>
               </div>
 
-              {/* Key Topics */}
-              <div className="p-6 rounded-xl bg-gray-800/50 border border-gray-700">
-                <h3 className="text-xl font-semibold mb-4">Key Topics Discussed</h3>
-                <div className="grid grid-cols-2 gap-4">
-                  {[
-                    { topic: 'Product Updates', time: '12:05', count: 15 },
-                    { topic: 'User Feedback', time: '08:30', count: 12 },
-                    { topic: 'Timeline', time: '06:45', count: 8 },
-                    { topic: 'Budget', time: '05:20', count: 7 },
-                    { topic: 'Marketing', time: '04:15', count: 6 },
-                    { topic: 'Development', time: '03:40', count: 5 }
-                  ].map((item, index) => (
-                    <div key={index} className="p-3 bg-gray-700/50 rounded-lg">
-                      <div className="flex items-center justify-between mb-1">
-                        <span className="text-sm font-medium text-gray-200">{item.topic}</span>
-                        <ArrowUpRight className="h-4 w-4 text-blue-400" />
-                      </div>
-                      <div className="flex items-center justify-between">
-                        <span className="text-xs text-gray-400">{item.time} mins</span>
-                        <span className="text-xs text-gray-400">{item.count} mentions</span>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </div>
+              
 
               {/* Engagement Metrics */}
               <div className="p-6 rounded-xl bg-gray-800/50 border border-gray-700">
@@ -321,32 +294,7 @@ const Home = () => {
                   </div>
                 </div>
               </div>
-
-              {/* Action Items */}
-              <div className="p-6 rounded-xl bg-gray-800/50 border border-gray-700">
-                <h3 className="text-xl font-semibold mb-4">Action Items Detected</h3>
-                <div className="space-y-3">
-                  {[
-                    { text: "Review Q4 marketing strategy by Friday", owner: "Speaker 1", time: "15:30" },
-                    { text: "Schedule follow-up meeting with dev team", owner: "Speaker 3", time: "23:45" },
-                    { text: "Share updated metrics dashboard", owner: "Speaker 2", time: "35:20" },
-                    { text: "Finalize budget proposal", owner: "Speaker 4", time: "42:15" }
-                  ].map((item, index) => (
-                    <div key={index} className="flex items-start space-x-3 p-3 bg-gray-700/50 rounded-lg">
-                      <div className="h-5 w-5 mt-0.5 rounded-full bg-blue-500/10 flex items-center justify-center flex-shrink-0">
-                        <CheckCircle className="h-4 w-4 text-blue-400" />
-                      </div>
-                      <div className="flex-1">
-                        <p className="text-sm text-gray-200">{item.text}</p>
-                        <div className="flex items-center space-x-3 mt-1">
-                          <span className="text-xs text-gray-400">{item.owner}</span>
-                          <span className="text-xs text-gray-500">at {item.time}</span>
-                        </div>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </div>
+              
             </div>
           </div>
         </section>
