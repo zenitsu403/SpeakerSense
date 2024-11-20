@@ -27,30 +27,43 @@ const MeetingAnalytics = () => {
   }, []);
 
   // Your existing export functions remain the same
-  const exportToCSV = () => {
+  const exportToWord = () => {
     try {
-      let csvContent = 'Meeting Analytics Summary\n\n';
-      csvContent += `Duration (minutes),${response_data.total_duration}\n`;
-      csvContent += `Number of Participants,${response_data.num_participants}\n`;
-      csvContent += `Total Segments,${response_data.total_segments}\n`;
-      csvContent += `Engagement Score,${response_data.engagement_score}\n\n`;
-      csvContent += 'Meeting Summary\n';
-      csvContent += `${response_data.meeting_summary.replace(/,/g, ';')}\n\n`;
-      csvContent += 'Speaker Summaries\n';
+      let content = `Meeting Analytics Report\n\n`;
+      content += `==========================================\n`;
+      content += `MEETING OVERVIEW\n`;
+      content += `==========================================\n`;
+      content += `Duration: ${response_data.total_duration} minutes\n`;
+      content += `Participants: ${response_data.num_participants}\n`;
+      content += `Segments: ${response_data.total_segments}\n`;
+      content += `Engagement Score: ${response_data.engagement_score.toFixed(1)}\n\n`;
+
+      content += `==========================================\n`;
+      content += `MEETING SUMMARY\n`;
+      content += `==========================================\n`;
+      content += `${response_data.meeting_summary}\n\n`;
+
+      content += `==========================================\n`;
+      content += `SPEAKER SUMMARIES\n`;
+      content += `==========================================\n`;
       Object.entries(response_data.speaker_summaries).forEach(([speaker, summary]) => {
-        csvContent += `${speaker},"${summary.replace(/"/g, '""')}"\n`;
+        content += `${speaker.toUpperCase()}\n`;
+        content += `${summary}\n\n`;
       });
-      csvContent += '\n';
-      csvContent += 'Full Transcription\n';
-      csvContent += 'Speaker,Transcription\n';
+
+      content += `==========================================\n`;
+      content += `FULL TRANSCRIPTION\n`;
+      content += `==========================================\n`;
       response_data.transcriptions.forEach(item => {
-        csvContent += `${item.Speaker},"${item.Transcription.replace(/"/g, '""')}"\n`;
+        content += `${item.Speaker.toUpperCase()}\n`;
+        content += `${item.Transcription}\n\n`;
       });
-      downloadFile(csvContent, 'meeting-analytics.csv', 'text/csv');
+
+      downloadFile(content, 'meeting-analytics.doc', 'application/msword');
       setShowExportMenu(false);
     } catch (error) {
-      console.error('Error exporting to CSV:', error);
-      alert('Failed to export CSV. Please try again.');
+      console.error('Error exporting to Word:', error);
+      alert('Failed to export Word document. Please try again.');
     }
   };
 
@@ -170,7 +183,7 @@ const MeetingAnalytics = () => {
   };
 
   const exportOptions = [
-    { label: 'CSV', icon: FileSpreadsheet, onClick: exportToCSV, color: 'text-green-400' },
+    { label: 'Word', icon: FileSpreadsheet, onClick: exportToWord, color: 'text-blue-400' },
     { label: 'JSON', icon: FileJson, onClick: exportToJSON, color: 'text-yellow-400' },
     { label: 'Text', icon: FileText, onClick: exportToText, color: 'text-blue-400' },
     { label: 'PDF', icon: File, onClick: exportToPDF, color: 'text-red-400' },
