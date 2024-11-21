@@ -116,7 +116,7 @@ const AudioUploader = () => {
         }
       };
 
-      const response = await axios.post("http://localhost:8000/upload/", formData, config);
+      const response = await axios.post("https://speakersense.onrender.com/upload/", formData, config);
       setUploadStatus('success');
       navigate('/meeting-analytics', { state: { response_data: response.data } });
     } catch (err) {

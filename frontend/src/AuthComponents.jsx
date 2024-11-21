@@ -97,7 +97,7 @@ const RegisterPage = () => {
     setIsSubmitting(true);
     
     try {
-      const response = await fetch('http://localhost:8000/register/', {
+      const response = await fetch('https://speakersense.onrender.com/register/', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -266,7 +266,7 @@ const LoginPage = ({setIsLoggedIn}) => {
     setIsSubmitting(true);
     
     try {
-      const response = await fetch('http://localhost:8000/login/', {
+      const response = await fetch('https://speakersense.onrender.com/login/', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(formData)
